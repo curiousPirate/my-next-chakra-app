@@ -4,26 +4,27 @@ import {
   Box,
   Heading,
   Text,
-  Stack,
   Button,
   Input,
   useToast,
-  Avatar,
   Card,
-  CardHeader,
   CardBody,
   CardFooter,
-  Flex,
   SimpleGrid,
   Center
 } from "@chakra-ui/react";
 import { BiChat } from "react-icons/bi";
+import {
+  getCommentsByPost,
+  createComment,
+} from "@/API/api";
 import Header from "../../components/Header";
 
 export default function PostsPage() {
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState({});
   const [commentBody, setCommentBody] = useState("");
+  const [showComments, setShowComments] = useState({});
   const toast = useToast();
 
   useEffect(() => {
@@ -42,11 +43,10 @@ export default function PostsPage() {
 
   const fetchComments = async (postId) => {
     try {
-      const response = await fetch(`https://gorest.co.in/public/v2/comments?post_id=${postId}`);
-      const data = await response.json();
+      const response = await getCommentsByPost(postId);
       setComments((prevComments) => ({
         ...prevComments,
-        [postId]: data,
+        [postId]: response.data,
       }));
     } catch (error) {
       console.error("Error fetching comments:", error);
@@ -57,11 +57,11 @@ export default function PostsPage() {
     try {
       const commentData = {
         body: commentBody,
-        name: "Your Name", // Replace with actual user's name
-        email: "your.email@example.com", // Replace with actual user's email
+        name: "Demo User",
+        email: "Demo@gm.com"
       };
 
-      // You would normally POST to an endpoint here, but for now just clearing the comment body
+      await createComment(postId, commentData);
       setCommentBody("");
       fetchComments(postId);
       toast({
@@ -86,22 +86,13 @@ export default function PostsPage() {
   return (
     <>
       <Header />
-    <Box p={6}>
-        <Heading mb={4}>All Posts</Heading>
+    <Box p={6} mt={100}>
         <Center py={6}>
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
       {posts.map((post) => (
         <Card key={post.id} maxW="md" mb={6}>
-          <CardHeader>
-            <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
-              {/* <Avatar name={post.user_id} /> */}
-              <Box>
-                <Heading size="sm">User {post.user_id}</Heading>
-              </Box>
-            </Flex>
-          </CardHeader>
           <CardBody>
-            <Heading>{post.title}</Heading>
+            <Heading mb={4}>{post.title}</Heading>
             <Text mb={4}>{post.body}</Text>
           </CardBody>
           <CardFooter
@@ -113,9 +104,39 @@ export default function PostsPage() {
               },
             }}
           >
-            <Button flex="1" variant="ghost" leftIcon={<BiChat />} onClick={() => fetchComments(post.id)}>
-              View Comments
-            </Button>
+            {showComments[post.id] ? (
+              <Button
+                flex="1"
+                variant="ghost"
+                leftIcon={<BiChat />}
+                onClick={() => {
+                  setComments({})
+                  setShowComments((prevState) => ({
+                    ...prevState,
+                    [post.id]: false
+                  }))
+                }
+                }
+              >
+                Hide Comments
+              </Button>
+            ) : (
+              <Button
+                flex="1"
+                variant="ghost"
+                leftIcon={<BiChat />}
+                onClick={() => {
+                  fetchComments(post.id);
+                  setShowComments((prevState) => ({
+                    ...prevState,
+                    [post.id]: true
+                  }));
+                }}
+              >
+                View Comments
+              </Button>
+            )}
+
             {comments[post.id] && (
               <Box mt={4} p={2} borderTop="1px" borderColor="gray.200">
                 <Heading fontSize="md" mb={2}>Comments</Heading>
@@ -132,7 +153,10 @@ export default function PostsPage() {
                     value={commentBody}
                     onChange={(e) => setCommentBody(e.target.value)}
                   />
-                  <Button size="sm" onClick={() => handleCreateComment(post.id)}>
+                  <Button
+                    size="sm"
+                    onClick={() => handleCreateComment(post.id)}
+                  >
                     Add Comment
                   </Button>
                 </Box>

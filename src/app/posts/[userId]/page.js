@@ -22,6 +22,8 @@ import {
   CardBody,
   CardFooter,
   useToast,
+  SimpleGrid,
+  Spinner,
 } from "@chakra-ui/react";
 import { BiChat } from "react-icons/bi";
 import {
@@ -40,6 +42,7 @@ export default function UserDetailsPage({ params }) {
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newPostBody, setNewPostBody] = useState("");
   const [commentBody, setCommentBody] = useState("");
+  const [showComments, setShowComments] = useState({});
   const toast = useToast();
   const userId = params.userId;
 
@@ -142,154 +145,239 @@ export default function UserDetailsPage({ params }) {
     }
   };
 
+  if (!user || !posts) {
+    return (
+      <Center py={6} h="100vh">
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
+
   return (
     <>
-    <Header />
-    <Box p={6} mt={55}>
-      <Box bg={"blue.900"} p={6} rounded={"lg"}>
-      {user && (
-        <Center>
-          <Box
-            maxW={"270px"}
-            w={"full"}
-            bg={"white"}
-            boxShadow={"xl"}
-            rounded={"xl"}
-            overflow={"hidden"}
-            textAlign={"center"}
-          >
-            <Flex justify={"center"} mt={4}>
-              <Avatar
-                size={"xl"}
-                name={user?.name}
-                bg={user?.gender === "male" ? "blue.500" : "pink.500"}
-                pos={"relative"}
-                _after={{
-                  content: '""',
-                  w: 4,
-                  h: 4,
-                  bg: user.status === "active" ? "green.300" : "red.300",
-                  border: "2px solid white",
-                  rounded: "full",
-                  pos: "absolute",
-                  bottom: 0,
-                  right: 3,
-                }}
-                css={{
-                  border: "2px solid white",
-                }}
-              />
-            </Flex>
-            <Box p={6}>
-              <Heading fontSize={"2xl"} fontWeight={500}>
-                {user?.name}
-              </Heading>
-              <Text color={"gray.500"}>{user?.email}</Text>
-            </Box>
-            <Button onClick={onOpen} colorScheme="blue" width={"100%"}>
-              Create New Post
-            </Button>
-          </Box>
-        </Center>
-        )}
-      </Box>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create New Post</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Input
-              placeholder="New Post Title"
-              mb={2}
-              value={newPostTitle}
-              onChange={(e) => setNewPostTitle(e.target.value)}
-            />
-            <Input
-              placeholder="New Post Body"
-              mb={2}
-              value={newPostBody}
-              onChange={(e) => setNewPostBody(e.target.value)}
-            />
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleCreatePost}>
-              Save
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <Box mt={6}>
-        {posts.map((post) => (
-          <Card key={post.id} maxW="md" mb={4}>
-            <CardHeader>
-              <Flex spacing="4">
-                <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
+      <Header />
+      <Box p={6} mt={55}>
+        <Box bg={"blue.900"} p={6} rounded={"lg"}>
+          {user && (
+            <Center>
+              <Box
+                maxW={"330px"}
+                w={"full"}
+                bg={"white"}
+                boxShadow={"xl"}
+                rounded={"xl"}
+                overflow={"hidden"}
+                textAlign={"center"}
+              >
+                <Flex justify={"center"} mt={4}>
                   <Avatar
-                    size={"md"}
-                    name={user.name}
-                    bg={user.gender === "male" ? "blue.500" : "pink.500"}
+                    size={"xl"}
+                    name={user?.name}
+                    bg={user?.gender === "male" ? "blue.500" : "pink.500"}
+                    pos={"relative"}
+                    _after={{
+                      content: '""',
+                      w: 4,
+                      h: 4,
+                      bg: user.status === "active" ? "green.300" : "red.300",
+                      border: "2px solid white",
+                      rounded: "full",
+                      pos: "absolute",
+                      bottom: 0,
+                      right: 3,
+                    }}
                     css={{
                       border: "2px solid white",
                     }}
                   />
-                  <Box>
-                    <Heading size="sm">{user.name}</Heading>
-                    <Text>{user.email}</Text>
-                  </Box>
                 </Flex>
-              </Flex>
-            </CardHeader>
-            <CardBody>
-              <Heading>{post.title}</Heading>
-              <Text mb={4}>{post.body}</Text>
-            </CardBody>
-            <CardFooter
-              justify="space-between"
-              flexWrap="wrap"
-              sx={{
-                "& > button": {
-                  minW: "136px",
-                },
-              }}
-            >
-              <Button flex="1" variant="ghost" leftIcon={<BiChat />} onClick={() => fetchComments(post.id)}>
-                View Comments
-              </Button>
-
-              {comments[post.id] && (
-                <Box mt={4} p={2} borderTop="1px" borderColor="gray.200">
-                  <Heading fontSize="md" mb={2}>Comments</Heading>
-                  {comments[post.id].map((comment) => (
-                    <Box key={comment.id} mb={4}>
-                      <Text fontWeight="bold">{comment.name}</Text>
-                      <Text>{comment.body}</Text>
-                    </Box>
-                  ))}
-                  <Box mt={4}>
-                    <Input
-                      placeholder="Add a comment"
-                      mb={2}
-                      value={commentBody}
-                      onChange={(e) => setCommentBody(e.target.value)}
-                    />
-                    <Button size="sm" onClick={() => handleCreateComment(post.id)}>
-                      Add Comment
-                    </Button>
-                  </Box>
+                <Box p={6}>
+                  <Heading fontSize={"2xl"} fontWeight={500}>
+                    {user?.name}
+                  </Heading>
+                  <Text color={"gray.500"}>{user?.email}</Text>
                 </Box>
-              )}
-            </CardFooter>
-          </Card>
-        ))}
+              </Box>
+            </Center>
+          )}
+        </Box>
+
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Create New Post</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Input
+                placeholder="New Post Title"
+                mb={2}
+                value={newPostTitle}
+                onChange={(e) => setNewPostTitle(e.target.value)}
+              />
+              <Input
+                placeholder="New Post Body"
+                mb={2}
+                value={newPostBody}
+                onChange={(e) => setNewPostBody(e.target.value)}
+              />
+            </ModalBody>
+
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={handleCreatePost}>
+                Save
+              </Button>
+              <Button variant="ghost" onClick={onClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        <Center mt={6}>
+          <Button
+            onClick={onOpen}
+            color={"blue.900"}
+            border={"1px"}
+            borderColor={"gray.300"}
+            bg={"white"}
+            _hover={{ bg: "blue.900", color: "white" }}
+            width={"30%"}
+          >
+            + Create New Post
+          </Button>
+        </Center>
+
+        <Box mt={6}>
+          {posts.length === 0 ? (
+            <Card maxW="xl" w={"100%"} mb={4}>
+              <CardHeader>
+                <Heading size="md">No Posts Yet</Heading>
+              </CardHeader>
+              <CardBody>
+                <Text>Create a new post to see it here!</Text>
+              </CardBody>
+              <CardFooter>
+                <Button
+                  onClick={onOpen}
+                  color={"blue.900"}
+                  border={"1px"}
+                  borderColor={"gray.300"}
+                  bg={"white"}
+                  _hover={{ bg: "blue.900", color: "white" }}
+                >
+                  Create Post
+                </Button>
+              </CardFooter>
+            </Card>
+          ) : (
+            <Center>                
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+              {posts.map((post) => (
+                <Card key={post.id} maxW="xl" w={"100%"} mb={4}>
+                  <CardHeader>
+                    <Flex spacing="4">
+                      <Flex
+                        flex="1"
+                        gap="4"
+                        alignItems="center"
+                        flexWrap="wrap"
+                      >
+                        <Avatar
+                          size={"md"}
+                          name={user.name}
+                          bg={
+                            user.gender === "male" ? "blue.500" : "pink.500"
+                          }
+                          css={{
+                            border: "2px solid white",
+                          }}
+                        />
+                        <Box>
+                          <Heading size="sm">{user.name}</Heading>
+                          <Text>{user.email}</Text>
+                        </Box>
+                      </Flex>
+                    </Flex>
+                  </CardHeader>
+                  <CardBody>
+                    <Heading>{post.title}</Heading>
+                    <Text mb={4}>{post.body}</Text>
+                  </CardBody>
+                  <CardFooter
+                    justify="space-between"
+                    flexWrap="wrap"
+                    sx={{
+                      "& > button": {
+                        minW: "136px",
+                      },
+                    }}
+                  >
+                    {showComments[post.id] ? (
+                      <Button
+                        flex="1"
+                        variant="ghost"
+                        leftIcon={<BiChat />}
+                        onClick={() => {
+                          setComments({})
+                          setShowComments((prevState) => ({
+                            ...prevState,
+                            [post.id]: false
+                          }))
+                        }
+                        }
+                      >
+                        Hide Comments
+                      </Button>
+                    ) : (
+                      <Button
+                        flex="1"
+                        variant="ghost"
+                        leftIcon={<BiChat />}
+                        onClick={() => {
+                          fetchComments(post.id);
+                          setShowComments((prevState) => ({
+                            ...prevState,
+                            [post.id]: true
+                            }));
+                          }}
+                        >
+                          View Comments
+                        </Button>
+                      )}
+
+                      {comments[post.id] && (
+                        <Box mt={4} p={2} borderTop="1px" borderColor="gray.200">
+                          <Heading fontSize="md" mb={2}>Comments</Heading>
+                          {comments[post.id].map((comment) => (
+                            <Box key={comment.id} mb={4}>
+                              <Text fontWeight="bold">{comment.name}</Text>
+                              <Text>{comment.body}</Text>
+                            </Box>
+                          ))}
+                          <Box mt={4}>
+                            <Input
+                              placeholder="Add a comment"
+                              mb={2}
+                              value={commentBody}
+                              onChange={(e) => setCommentBody(e.target.value)}
+                            />
+                          <Button
+                            size="sm"
+                            onClick={() => handleCreateComment(post.id)}
+                          >
+                            Add Comment
+                          </Button>
+                        </Box>
+                      </Box>
+                    )}
+                  </CardFooter>
+                </Card>
+              ))}
+            </SimpleGrid>
+            </Center>
+          )}
+        </Box>
       </Box>
-    </Box>
     </>
   );
 }
