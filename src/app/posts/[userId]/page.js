@@ -241,7 +241,7 @@ export default function UserDetailsPage({ params }) {
             borderColor={"gray.300"}
             bg={"white"}
             _hover={{ bg: "blue.900", color: "white" }}
-            width={"30%"}
+            w={"200px"}
           >
             + Create New Post
           </Button>

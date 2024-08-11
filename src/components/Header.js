@@ -31,8 +31,8 @@ export default function Header({ onUsersUpdated }) {
         align="center"
         justify="space-between"
         padding={4}
-        borderBottom="1px"
-        borderColor={useColorModeValue("gray.200", "gray.700")}
+        borderBottom="6px"
+        borderColor="gray.200"
         bg={useColorModeValue("white", "gray.800")}
         color={useColorModeValue("black", "white")}
         display={display === "flex" ? "flex" : "none"}
